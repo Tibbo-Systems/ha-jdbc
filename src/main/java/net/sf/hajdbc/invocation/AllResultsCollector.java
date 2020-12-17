@@ -33,6 +33,10 @@ import net.sf.hajdbc.Database;
 import net.sf.hajdbc.DatabaseCluster;
 import net.sf.hajdbc.ExceptionFactory;
 import net.sf.hajdbc.Messages;
+import net.sf.hajdbc.logging.Level;
+import net.sf.hajdbc.logging.Logger;
+import net.sf.hajdbc.logging.LoggerFactory;
+import net.sf.hajdbc.sql.DatabaseClusterImpl;
 import net.sf.hajdbc.sql.ProxyFactory;
 
 /**
@@ -40,6 +44,8 @@ import net.sf.hajdbc.sql.ProxyFactory;
  */
 public class AllResultsCollector implements InvokeOnManyInvocationStrategy.ResultsCollector
 {
+  static final Logger logger = LoggerFactory.getLogger(DatabaseClusterImpl.class);
+  
 	public static interface ExecutorProvider
 	{
 		<Z, D extends Database<Z>> ExecutorService getExecutor(DatabaseCluster<Z, D> cluster);
@@ -64,7 +70,7 @@ public class AllResultsCollector implements InvokeOnManyInvocationStrategy.Resul
 		
 		if (databaseSet.isEmpty())
 		{
-			exceptionFactory.createException(Messages.NO_ACTIVE_DATABASES.getMessage(cluster));
+			logger.log(Level.WARN, exceptionFactory.createException(Messages.NO_ACTIVE_DATABASES.getMessage(cluster)));
 		}
 
 		int size = databaseSet.size();

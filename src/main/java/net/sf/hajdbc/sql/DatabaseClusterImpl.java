@@ -955,23 +955,20 @@ public class DatabaseClusterImpl<Z, D extends Database<Z>> implements DatabaseCl
 			{
 				Set<D> activeDatabases = DatabaseClusterImpl.this.getBalancer();
 				
-				if (!activeDatabases.isEmpty())
+				for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
 				{
-					for (D database: DatabaseClusterImpl.this.configuration.getDatabaseMap().values())
+					if (!activeDatabases.contains(database))
 					{
-						if (!activeDatabases.contains(database))
+						try
 						{
-							try
+							if (DatabaseClusterImpl.this.activate(database, DatabaseClusterImpl.this.configuration.getSynchronizationStrategyMap().get(DatabaseClusterImpl.this.configuration.getDefaultSynchronizationStrategy())))
 							{
-								if (DatabaseClusterImpl.this.activate(database, DatabaseClusterImpl.this.configuration.getSynchronizationStrategyMap().get(DatabaseClusterImpl.this.configuration.getDefaultSynchronizationStrategy())))
-								{
-									logger.log(Level.INFO, Messages.DATABASE_ACTIVATED.getMessage(), database, DatabaseClusterImpl.this);
-								}
+								logger.log(Level.INFO, Messages.DATABASE_ACTIVATED.getMessage(), database, DatabaseClusterImpl.this);
 							}
-							catch (SQLException e)
-							{
-								logger.log(Level.DEBUG, e);
-							}
+						}
+						catch (SQLException e)
+						{
+							logger.log(Level.DEBUG, e);
 						}
 					}
 				}
